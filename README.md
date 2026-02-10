@@ -5,7 +5,7 @@ OncoVarAgent is an autonomous AI agent built with Large Language Models (LLMs) a
 While traditional annotation tools like the OncoKB Annotator provide an excellent baseline for known biomarkers, researchers often face a manual, time-consuming process of literature review and clinical trial searches for variants that are "potentially actionable" but lack definitive tiering. OncoVarAgent aims to automate this complex research process.
 
 [![License: MIT](https://img.shields.io/badge/License-GPLv3-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/release/python-390/)
 
 ---
 
@@ -34,7 +34,7 @@ OncoVarAgent's core is a state machine built with **LangGraph**. The workflow pr
     -   Finally, it produces a comprehensive summary of its findings, citing all evidence.
 4.  **Report Synthesis (Synthesizer Node)**:
     -   This node combines the baseline OncoKB data with the research agent's summary.
-    -   It uses a "factual" LLM to format all the information into a strict JSON schema, creating the final report for a single variant.
+    -   It uses a LLM to format all the information into a strict JSON schema, creating the final report for a single variant.
 5.  **Finalization (Final Combiner Node)**:
     -   Once all variants are processed, this node consolidates the individual reports into a final dataset ready for export to an Excel file.
 
@@ -52,30 +52,11 @@ cd OncoVarAgent
 ### 2. Create a Python Virtual Environment
 
 ```bash
-# For Linux/macOS
-python3 -m venv venv
-source venv/bin/activate
-
-# For Windows
-python -m venv venv
-venv\Scripts\activate
+conda create -n oncovaragent python=3.10
+conda activate oncovaragent
 ```
 
 ### 3. Install Dependencies
-
-Create a `requirements.txt` file in the project root with the following content:
-
-```
-langchain
-langgraph
-langchain-openai
-pandas
-python-dotenv
-requests
-openpyxl
-```
-
-Then, run the installation command:
 
 ```bash
 pip install -r requirements.txt
@@ -108,13 +89,8 @@ This is the most critical step.
 
     # --- LLM Model Selection ---
     # The model for the creative ReAct agent (needs strong reasoning and tool use).
-    # Examples: "gpt-4-turbo", "claude-3-opus-20240229"
-    LLM_CREATIVE_MODEL_NAME="gpt-4-turbo"
-
-    # The model for the factual synthesizer (needs strong instruction following).
-    # Examples: "gpt-4-turbo", "claude-3-sonnet-20240229"
-    LLM_FACTUAL_MODEL_NAME="gpt-4-turbo"
-
+    # Examples: "gpt-5"
+    LLM_MODEL_NAME="gpt-5"
 
     # --- OncoKB Annotator Configuration ---
     # Your OncoKB API Token, obtained from https://www.oncokb.org/apiAccess
@@ -130,15 +106,13 @@ This is the most critical step.
 
 ### 1. Prepare Your Input File
 
-Create a tab-separated values (TSV) file (e.g., `my_variants.txt`). The file must contain columns for the gene symbol, protein change, and cancer type.
+Create a tab-separated values (TSV) file (e.g., `my_variants.txt`). The file must contain columns for the gene symbol, protein change, and cancer type. Cancer type must be same.
 
 **Example `my_variants.txt`:**
 ```tsv
 Hugo_Symbol	HGVSp_Short	Cancer_Type
-BRAF	p.V600E	Melanoma
 EGFR	p.L858R	Non-Small Cell Lung Cancer
-TP53	p.R175H	Ovarian Cancer
-ARID1A	p.G1593fs*34	Gastric Cancer
+TP53	p.R175H	Non-Small Cell Lung Cancer
 ```
 *Note: You can specify different column names via command-line arguments.*
 

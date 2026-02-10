@@ -1,8 +1,8 @@
-# 🧬 OncoVarAgent: An AI Agent for Somatic Variant Interpretation
+# 🧬 OncoVarAgent: An Autonomous Research Agent for Uncovering Actionable Therapeutic Evidence for Somatic Cancer Variants Lacking Established Guidance.
 
-OncoVarAgent is an autonomous AI agent built with Large Language Models (LLMs) and LangGraph, designed for automated, in-depth clinical interpretation of somatic cancer variants.
+OncoVarAgent is an autonomous AI agent built with Large Language Models (LLMs) and LangGraph, designed for automated, in-depth therapeutic evidence discovery of somatic cancer variants lacking established guidance.
 
-While traditional annotation tools like the OncoKB Annotator provide an excellent baseline for known biomarkers, researchers often face a manual, time-consuming process of literature review and clinical trial searches for variants that are "potentially actionable" but lack definitive tiering. OncoVarAgent aims to automate this complex research process.
+While traditional annotation tools like the OncoKB Annotator provide an excellent baseline for known biomarkers, researchers often face a manual, time-consuming process of literature review and clinical trial searches for variants without standard-of-care drugs. OncoVarAgent aims to automate this complex research process.
 
 [![License: MIT](https://img.shields.io/badge/License-GPLv3-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/release/python-390/)

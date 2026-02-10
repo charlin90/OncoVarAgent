@@ -1,69 +1,70 @@
-# 🧬 OncoVarAgent: AI Agent for Somatic Variant Interpretation
+# 🧬 OncoVarAgent: An AI Agent for Somatic Variant Interpretation
 
-OncoVarAgent 是一个基于大型语言模型（LLM）和 LangGraph 构建的自主 AI 代理，旨在自动化和深化癌症体细胞突变的临床意义解读。
+OncoVarAgent is an autonomous AI agent built with Large Language Models (LLMs) and LangGraph, designed for automated, in-depth clinical interpretation of somatic cancer variants.
 
-传统的变异注释工具（如 OncoKB Annotator）为已知的生物标志物提供了极好的基线信息。然而，对于那些没有明确分级或药物关联的“潜在可操作”变异，研究人员通常需要手动查阅大量文献和临床试验数据。OncoVarAgent 的目标就是自动化这一耗时且复杂的研究过程。
+While traditional annotation tools like the OncoKB Annotator provide an excellent baseline for known biomarkers, researchers often face a manual, time-consuming process of literature review and clinical trial searches for variants that are "potentially actionable" but lack definitive tiering. OncoVarAgent aims to automate this complex research process.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/release/python-390/)
 
 ---
 
-## ✨ 核心特性
+## ✨ Core Features
 
--   **自动化工作流**: 从输入一个包含变异列表的 MAF/TSV 文件开始，到输出一个包含深度解读的 Excel 报告，全程自动化。
--   **智能分流**: 代理会首先利用 OncoKB 的结果进行智能判断。对于已有明确治疗方案或被认为是良性的变异，代理会跳过深度研究，从而节省计算资源和时间。
--   **多工具代理研究**: 对于需要深度研究的变异，代理会像一个领域专家一样，自主规划并执行一系列研究步骤：
-    -   **PubMed**: 搜索与变异功能、治疗相关的最新文献。
-    -   **ClinicalTrials.gov**: 查询与特定药物、基因或癌种相关的临床试验。
--   **证据综合与报告生成**: 代理能够综合从多个来源（OncoKB、文献、临床试验）获得的信息，生成一个结构化的、包含证据引用的深度分析报告。
--   **高度可配置**: 通过 `.env` 文件，用户可以轻松配置自己的 LLM API、模型名称和 OncoKB 凭证。
+-   **Automated Workflow**: End-to-end automation, from an input MAF/TSV file to a comprehensive Excel report.
+-   **Intelligent Triage**: The agent intelligently decides whether to perform a deep dive. Variants with clear therapeutic options or benign classifications are fast-tracked, saving time and computational resources.
+-   **Multi-Tool Research Agent**: For variants requiring investigation, the agent acts like a domain expert, autonomously planning and executing research steps using tools like `pubmed_search` and `query_clinical_trials`.
+-   **Evidence Synthesis & Reporting**: The agent synthesizes information from all sources (OncoKB, literature, trials) to generate a structured, well-cited analytical report.
+-   **Highly Configurable**: Easily configure your LLM endpoints, model names, and API keys via a `.env` file.
 
-## ⚙️ 技术架构
+## ⚙️ Technical Architecture
 
-OncoVarAgent 的核心是一个使用 **LangGraph** 构建的状态机（StateGraph）。工作流程如下：
+OncoVarAgent's core is a state machine built with **LangGraph**. The workflow proceeds as follows:
 
-1.  **初始化 (Annotator Node)**: 使用 OncoKB Annotator 对输入的 MAF 文件进行初步注释，获取基线信息。
-2.  **循环与分流 (Routing Logic)**:
-    -   系统从待处理列表中取出一个变异。
-    -   **决策点**: 根据 OncoKB 的结果判断：
-        -   如果变异已有明确的药物信息 (`Drugs` 字段非空) 或被分类为良性/可能良性，则**跳过**深度研究，直接进入格式化步骤。
-        -   否则，进入深度研究流程。
-3.  **深度研究 (Deep Research Node)**:
-    -   一个 **ReAct (Reasoning and Acting)** 风格的代理被激活。
-    -   该代理接收到一个复杂的任务指令，要求它分阶段、有逻辑地研究该变异。
-    -   代理会自主决定调用 `pubmed_search` 和 `query_clinical_trials` 工具，分析返回结果，并根据分析规划下一步行动。
-    -   最终，代理会输出一份综合性的研究摘要。
-4.  **报告合成 (Synthesizer Node)**:
-    -   此节点将 OncoKB 的基线数据与深度研究代理生成的摘要结合起来。
-    -   调用一个“事实型”LLM，根据严格的 JSON Schema 将所有信息格式化为最终的单变异报告。
-5.  **循环结束与合并 (Final Combiner Node)**:
-    -   当所有变异都处理完毕后，此节点将所有单个报告合并，并准备最终输出。
+1.  **Initialization (Annotator Node)**: The workflow starts by annotating the input file with the OncoKB Annotator to get baseline information for all variants.
+2.  **Looping & Triage (Routing Logic)**:
+    -   The system processes one variant at a time from the annotated list.
+    -   **Decision Point**: A crucial routing step decides the path based on OncoKB results:
+        -   If the variant has known drug associations or is classified as `(Likely) Neutral`, it **skips** the deep dive and proceeds directly to a simple formatting step.
+        -   Otherwise, it proceeds to the full research node.
+3.  **Deep Research (Deep Research Node)**:
+    -   A **ReAct (Reasoning and Acting)** style agent is invoked.
+    -   This agent receives a complex prompt outlining a multi-phase research strategy, guiding it to investigate the variant's function, cancer-specific therapies, and pan-cancer evidence.
+    -   It autonomously calls tools, analyzes their outputs, and plans subsequent actions until it has gathered sufficient evidence.
+    -   Finally, it produces a comprehensive summary of its findings, citing all evidence.
+4.  **Report Synthesis (Synthesizer Node)**:
+    -   This node combines the baseline OncoKB data with the research agent's summary.
+    -   It uses a "factual" LLM to format all the information into a strict JSON schema, creating the final report for a single variant.
+5.  **Finalization (Final Combiner Node)**:
+    -   Once all variants are processed, this node consolidates the individual reports into a final dataset ready for export to an Excel file.
 
-## 🔧 安装与配置
+## 🔧 Installation & Configuration
 
-在运行脚本之前，请确保你已完成以下环境配置。
+Follow these steps to set up your environment.
 
-### 1. 克隆仓库
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/your-username/OncoVarAgent.git
 cd OncoVarAgent
 ```
 
-### 2. 创建 Python 虚拟环境
+### 2. Create a Python Virtual Environment
 
 ```bash
+# For Linux/macOS
+python3 -m venv venv
+source venv/bin/activate
+
+# For Windows
 python -m venv venv
-source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+venv\Scripts\activate
 ```
 
-### 3. 安装依赖
+### 3. Install Dependencies
 
-首先，请在项目根目录创建一个 `requirements.txt` 文件。
-*如果你已经安装了所有需要的包，可以运行 `pip freeze > requirements.txt` 来生成此文件。*
+Create a `requirements.txt` file in the project root with the following content:
 
-`requirements.txt` 文件应包含以下内容：
 ```
 langchain
 langgraph
@@ -74,104 +75,115 @@ requests
 openpyxl
 ```
 
-然后运行安装命令：
+Then, run the installation command:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. 下载 OncoKB Annotator
+### 4. Download the OncoKB Annotator
 
-OncoVarAgent 依赖于 OncoKB 官方提供的 `MafAnnotator.py` 脚本。
--   前往 [oncokb-annotator GitHub 仓库](https://github.com/oncokb/oncokb-annotator)。
--   下载该仓库，并记下 `MafAnnotator.py` 脚本在你本地文件系统中的**完整路径**。
+OncoVarAgent relies on the official `MafAnnotator.py` script from OncoKB.
+-   Go to the [oncokb-annotator GitHub repository](https://github.com/oncokb/oncokb-annotator).
+-   Download or clone the repository to your local machine.
+-   Make a note of the **absolute path** to the `MafAnnotator.py` script.
 
-### 5. 配置环境变量
+### 5. Configure Environment Variables
 
-这是最关键的一步。
+This is the most critical step.
 
-1.  将 `.env.example` 文件复制为 `.env` 文件：
+1.  Copy the example environment file:
     ```bash
     cp .env.example .env
     ```
-2.  打开 `.env` 文件，并填入你自己的凭证和路径：
+2.  Open the newly created `.env` file and fill in your credentials and paths:
 
     ```dotenv
     # --- LLM Provider Configuration ---
-    # 你的大模型API服务地址
+    # Your LLM provider's base URL. For OpenAI, this is "https://api.openai.com/v1"
     LLM_BASE_URL="https://api.mulerun.com/v1"
 
-    # 你的大模型API密钥
-    LLM_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxx"
+    # Your LLM API key
+    LLM_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
     # --- LLM Model Selection ---
-    # 用于ReAct Agent深度研究的模型 (推荐使用能力强的模型, 如 GPT-4, Claude 3 Opus)
+    # The model for the creative ReAct agent (needs strong reasoning and tool use).
+    # Examples: "gpt-4-turbo", "claude-3-opus-20240229"
     LLM_CREATIVE_MODEL_NAME="gpt-4-turbo"
 
-    # 用于最终报告合成的模型 (推荐使用遵循指令能力强的模型)
+    # The model for the factual synthesizer (needs strong instruction following).
+    # Examples: "gpt-4-turbo", "claude-3-sonnet-20240229"
     LLM_FACTUAL_MODEL_NAME="gpt-4-turbo"
 
+
     # --- OncoKB Annotator Configuration ---
-    # 从 https://www.oncokb.org/apiAccess 获取你的 OncoKB API Token
+    # Your OncoKB API Token, obtained from https://www.oncokb.org/apiAccess
     ONCOKB_API_TOKEN="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
-    # 你在步骤4中下载的 MafAnnotator.py 脚本的完整路径
-    # 例如: "/home/user/tools/oncokb-annotator/MafAnnotator.py"
+    # The absolute path to the MafAnnotator.py script you downloaded in Step 4.
+    # Example for Linux/macOS: "/home/user/tools/oncokb-annotator/MafAnnotator.py"
+    # Example for Windows: "C:\\Users\\user\\tools\\oncokb-annotator\\MafAnnotator.py"
     ONCOKB_ANNOTATOR_PATH="/path/to/your/oncokb-annotator/MafAnnotator.py"
     ```
 
-## ▶️ 如何使用
+## ▶️ How to Use
 
-1.  **准备输入文件**:
-    创建一个 TSV (Tab-Separated Values) 文件，例如 `my_variants.txt`。文件必须包含基因符号、蛋白质改变和癌症类型的列。默认列名如下：
+### 1. Prepare Your Input File
 
-    ```tsv
-    Hugo_Symbol	HGVSp_Short	Cancer_Type
-    BRAF	p.V600E	Melanoma
-    EGFR	p.L858R	Non-Small Cell Lung Cancer
-    TP53	p.R175H	Ovarian Cancer
-    ```
-    *你可以通过命令行参数指定不同的列名。*
+Create a tab-separated values (TSV) file (e.g., `my_variants.txt`). The file must contain columns for the gene symbol, protein change, and cancer type.
 
-2.  **运行脚本**:
-    打开终端，激活虚拟环境，然后运行以下命令：
-    ```bash
-    python OncoVarAgent.py \
-      --input-txt my_variants.txt \
-      --output variant_interpretation_report.xlsx
-    ```
-    代理将会开始执行，你会在终端看到详细的运行日志，包括每个节点的执行情况、代理的思考过程和工具调用。
+**Example `my_variants.txt`:**
+```tsv
+Hugo_Symbol	HGVSp_Short	Cancer_Type
+BRAF	p.V600E	Melanoma
+EGFR	p.L858R	Non-Small Cell Lung Cancer
+TP53	p.R175H	Ovarian Cancer
+ARID1A	p.G1593fs*34	Gastric Cancer
+```
+*Note: You can specify different column names via command-line arguments.*
 
-### 命令行参数
+### 2. Run the Script
 
--   `--input-txt`: (必需) 输入的 TSV 文件路径。
--   `--output`: (可选) 输出的 Excel 报告文件名。默认为 `variant_interpretation_report.xlsx`。
--   `--gene-col`: (可选) 输入文件中基因符号的列名。默认为 `Hugo_Symbol`。
--   `--protein-change-col`: (可选) 输入文件中蛋白质改变的列名。默认为 `HGVSp_Short`。
--   `--cancer-type-col`: (可选) 输入文件中癌症类型的列名。默认为 `Cancer_Type`。
+From your terminal, with the virtual environment activated, run the agent:
 
+```bash
+python OncoVarAgent.py \
+  --input-txt my_variants.txt \
+  --output variant_interpretation_report.xlsx
+```
 
-## 📄 输出解读
+The agent will begin its process, and you will see detailed logs in your terminal, including node execution, the agent's thought process, and tool calls.
 
-脚本执行完毕后，会生成一个名为 `variant_interpretation_report.xlsx` 的 Excel 文件。文件包含以下列：
+### Command-Line Arguments
 
-| 列名                               | 描述                                                                    |
-| ---------------------------------- | ----------------------------------------------------------------------- |
-| `gene`                             | 基因符号。                                                              |
-| `protein_change`                   | HGVSp 格式的蛋白质改变。                                                |
-| `cancer_type`                      | 癌症类型。                                                              |
-| **--- OncoKB 基线数据 ---**        |                                                                         |
-| `oncokb_ONCOGENIC`                 | OncoKB 对变异致癌性的分类。                                             |
-| `oncokb_AMP_TIER`                  | 根据 OncoKB 证据等级映射的 AMP/ASCO/CAP 分级。                            |
-| `oncokb_Drugs`                     | OncoKB 中与该变异相关的药物（敏感性/耐药性）。                           |
-| `oncokb_MUTATION_EFFECT`           | OncoKB 对突变功能的描述 (例如, Gain-of-function)。                       |
-| `oncokb_MUTATION_EFFECT_CITATIONS` | 支持突变功能描述的 PubMed ID。                                          |
-| **--- OncoVarAgent 深度分析 ---**  |                                                                         |
-| `OncoVarAgent_Drugs`               | 代理从文献和临床试验中发现的潜在药物，格式为 `Drug(Status, Evidence)`。    |
-| `OncoVarAgent_Support_Literatures` | 支持其分析结论的 PubMed ID 列表 (PMID)。                                 |
-| `OncoVarAgent_Clinical_Trial_IDs`  | 相关的临床试验 ID 列表 (NCT ID)。                                         |
-| `OncoVarAgent_Brief_Report`        | 代理生成的 2-3 句话核心摘要。                                           |
-| `OncoVarAgent_Deep_Report`         | 代理完整的、包含内在逻辑和证据引用的详细分析报告。                        |
+-   `--input-txt` (Required): Path to your input TSV file.
+-   `--output` (Optional): Name for the output Excel file. Defaults to `variant_interpretation_report.xlsx`.
+-   `--gene-col` (Optional): Column name for the gene symbol in your input file. Defaults to `Hugo_Symbol`.
+-   `--protein-change-col` (Optional): Column name for the HGVSp notation. Defaults to `HGVSp_Short`.
+-   `--cancer-type-col` (Optional): Column name for the cancer type. Defaults to `Cancer_Type`.
 
-## ⚖️ 许可证
+## 📄 Output Interpretation
 
-本项目采用 [GPL License](./LICENSE) 开源。
+The script generates an Excel file with the following columns, providing a comprehensive view of each variant.
+
+| Column Name                        | Description                                                                     |
+| ---------------------------------- | ------------------------------------------------------------------------------- |
+| `gene`                             | Gene symbol.                                                                    |
+| `protein_change`                   | Protein change in HGVSp format.                                                 |
+| `cancer_type`                      | The cancer type context for the interpretation.                                 |
+| **--- OncoKB Baseline Data ---**   |                                                                                 |
+| `oncokb_ONCOGENIC`                 | OncoKB's oncogenicity classification.                                           |
+| `oncokb_AMP_TIER`                  | The AMP/ASCO/CAP tier mapped from the OncoKB level of evidence.                   |
+| `oncokb_Drugs`                     | Drugs (sensitivity/resistance) associated with the variant in OncoKB.           |
+| `oncokb_MUTATION_EFFECT`           | The functional effect of the mutation (e.g., Gain-of-function).                 |
+| `oncokb_MUTATION_EFFECT_CITATIONS` | Supporting PubMed IDs for the mutation effect.                                  |
+| **--- OncoVarAgent Deep Analysis ---** |                                                                                 |
+| `OncoVarAgent_Drugs`               | Potential drugs identified by the agent, formatted as `Drug(Status, Evidence)`. |
+| `OncoVarAgent_Support_Literatures` | A comma-separated list of PubMed IDs (PMIDs) supporting the agent's analysis.   |
+| `OncoVarAgent_Clinical_Trial_IDs`  | A comma-separated list of relevant Clinical Trial IDs (NCT IDs).                |
+| `OncoVarAgent_Brief_Report`        | A 2-3 sentence executive summary of the agent's key findings.                   |
+| `OncoVarAgent_Deep_Report`         | The full, detailed analysis from the agent, including its reasoning and evidence. |
+
+## ⚖️ License
+
+This project is licensed under the GPL License. See the `LICENSE` file for details.

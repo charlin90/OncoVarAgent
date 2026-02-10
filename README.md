@@ -4,7 +4,7 @@ OncoVarAgent is an autonomous AI agent built with Large Language Models (LLMs) a
 
 While traditional annotation tools like the OncoKB Annotator provide an excellent baseline for known biomarkers, researchers often face a manual, time-consuming process of literature review and clinical trial searches for variants that are "potentially actionable" but lack definitive tiering. OncoVarAgent aims to automate this complex research process.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-GPLv3-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/release/python-390/)
 
 ---
@@ -186,4 +186,4 @@ The script generates an Excel file with the following columns, providing a compr
 
 ## ⚖️ License
 
-This project is licensed under the GPL License. See the `LICENSE` file for details.
+This project is licensed under the GPLv3 License. See the `LICENSE` file for details.

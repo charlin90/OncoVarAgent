@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+pandas
+requests
+langchain-core
+langchain-openai
+langgraph
+openpyxl
+jinja2
+python-multipart

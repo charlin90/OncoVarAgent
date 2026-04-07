@@ -90,7 +90,7 @@ This is the most critical step.
     # --- LLM Model Selection ---
     # The model for the creative ReAct agent (needs strong reasoning and tool use).
     # Examples: "gpt-5"
-    LLM_MODEL_NAME="gpt-5"
+    MODEL_NAME="gpt-5"
 
     # --- OncoKB Annotator Configuration ---
     # Your OncoKB API Token, obtained from https://www.oncokb.org/apiAccess

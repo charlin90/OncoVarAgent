@@ -1,7 +1,7 @@
 # OncoVarAgent Streamlit Offline App
 
 This directory is intended to be copied and deployed as a standalone Streamlit app.
-It does not require the original React frontend or the FastAPI service.
+
 
 Bundled runtime scripts:
 
@@ -55,3 +55,6 @@ Then open:
 ```text
 http://localhost:8501
 ```
+
+![image-20260516133601297](C:\Users\41378\AppData\Roaming\Typora\typora-user-images\image-20260516133601297.png)
+

@@ -82,15 +82,15 @@ This is the most critical step.
     ```dotenv
     # --- LLM Provider Configuration ---
     # Your LLM provider's base URL. For OpenAI, this is "https://api.openai.com/v1"
-    LLM_BASE_URL="https://api.mulerun.com/v1"
+    LLM_BASE_URL="https://api.openai.com/v1"
 
     # Your LLM API key
     LLM_API_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
     # --- LLM Model Selection ---
     # The model for the creative ReAct agent (needs strong reasoning and tool use).
-    # Examples: "gpt-5"
-    MODEL_NAME="gpt-5"
+    # Examples: "gpt-5.4"
+    MODEL_NAME="gpt-5.4"
 
     # --- OncoKB Annotator Configuration ---
     # Your OncoKB API Token, obtained from https://www.oncokb.org/apiAccess

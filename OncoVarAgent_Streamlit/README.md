@@ -56,5 +56,5 @@ Then open:
 http://localhost:8501
 ```
 
-![image-20260516133601297](C:\Users\41378\AppData\Roaming\Typora\typora-user-images\image-20260516133601297.png)
+![image-20260516133601297](streamplit_home.png)
 
